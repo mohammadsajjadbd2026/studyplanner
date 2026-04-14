@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>مُخطِّط المقروءات | متتبع الصفحات والخلاصات - نسخة فاتحة</title>
+  <!-- Fonts & Libraries -->
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Quill Rich Text Editor -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ===== لون فاتح (لايت مود) مع لمسة أنيقة ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: #f5f7fb;        /* خلفية فاتحة ناعمة */
+      color: #1e2a32;             /* نص غامق مريح */
+      direction: rtl;
+      line-height: 1.5;
+    }
+    .nav-pills .nav-btn {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #dce4ec;
+      padding-bottom: 12px;
+    }
+    .logo h1 {
+      font-family: 'Amiri', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #2c6e4f;            /* أخضر هادئ */
+    }
+    .stats-badge {
+      background: #ffffff;
+      border-radius: 40px;
+      padding: 6px 18px;
+      border: 1px solid #cfdfda;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2c6e4f;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .nav-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      background: #eef2f5;
+      border-radius: 60px;
+      padding: 4px;
+    }
+    .nav-btn {
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #4a5b66;
+    }
+    .nav-btn.active {
+      background: #2c6e4f;        /* أخضر أنيق */
+      color: white;
+      box-shadow: 0 2px 8px rgba(44,110,79,0.2);
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+      border: 1px solid #e2e8f0;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c6e4f;
+      margin-bottom: 16px;
+      border-right: 4px solid #2c6e4f;
+      padding-right: 12px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 24px;
+    }
+    .book-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 14px 0;
+      border-bottom: 1px solid #e9edf2;
+      gap: 10px;
+    }
+    .book-info {
+      flex: 2;
+      min-width: 180px;
+    }
+    .book-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #1f2e36;
+    }
+    .book-author {
+      font-size: 12px;
+      color: #6c7a89;
+    }
+    .btn-sm {
+      background: #f0f4f9;
+      border: 1px solid #d0dbeb;
+      border-radius: 30px;
+      padding: 5px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #2c3e50;
+      transition: 0.15s;
+    }
+    .btn-sm:hover {
+      background: #e6edf4;
+    }
+    .btn-primary {
+      background: #2c6e4f;
+      border: none;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-primary:hover {
+      background: #1f5a41;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      border-radius: 30px;
+      padding: 6px 14px;
+      cursor: pointer;
+      color: #2c6e4f;
+    }
+    .progress-slider {
+      width: 160px;
+    }
+    input, select, textarea {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #1e2a32;
+      padding: 8px 12px;
+      border-radius: 30px;
+      transition: 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2c6e4f;
+      box-shadow: 0 0 0 2px rgba(44,110,79,0.1);
+    }
+    input::placeholder {
+      color: #94a3b8;
+    }
+    .page-content { display: none; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .stat-number { font-size: 32px; font-weight: 800; color: #2c6e4f; }
+    .empty-state { text-align: center; padding: 32px; color: #6c7a89; }
+    .quill-editor {
+      background: #ffffff;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+    .ql-container {
+      min-height: 180px;
+      font-size: 14px;
+      color: #1e2a32;
+      background: #ffffff;
+    }
+    .ql-toolbar {
+      background: #f8fafc;
+      border-color: #e2e8f0 !important;
+      border-radius: 20px 20px 0 0;
+    }
+    .ql-toolbar button svg {
+      color: #334155;
+    }
+    .page-log-panel {
+      background: #f9fbfe;
+      border-radius: 20px;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #eef2f9;
+    }
+    .badge-pages {
+      background: #eef2ff;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 12px;
+      color: #2c6e4f;
+      font-weight: 500;
+    }
+    hr { margin: 12px 0; border-color: #e2e8f0; }
+    .summary-post {
+      background: #fefefe;
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid #e9edf2;
+      margin-top: 16px;
+      color: #2d3e4b;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .summary-post img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 16px;
+      margin: 12px 0;
+    }
+    .link-list {
+      background: #fafcff;
+      border-radius: 20px;
+      padding: 10px 16px;
+      margin: 8px 0;
+      border: 1px solid #ecf3f9;
+    }
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2eaf1;
+      color: #2c3e50;
+    }
+    a {
+      color: #2c6e4f;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .progress-wrap {
+      background: #eef2f5;
+      border-radius: 12px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #2c6e4f;
+      height: 100%;
+      width: 0%;
+      border-radius: 12px;
+    }
+    .btn-sm:hover, .btn-primary:hover, .btn-outline:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 640px) {
+      .app-container { padding: 16px; }
+      .book-row { flex-direction: column; align-items: flex-start; }
+    }
+    .page-log-item {
+      background: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      border: 1px solid #ecf3fa;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="top-header">
+    <div class="logo">
+      <h1>📖 مُخطِّط المقروءات</h1>
+      <p style="font-size: 13px; color: #5f6c7a;">متتبع الصفحات والخلاصات الذكي</p>
+    </div>
+    <div class="stats-badge" id="globalStats">📚 0 كتاب | 📄 0 صفحة</div>
+  </div>
+
+  <div class="nav-pills" id="navTabs">
+    <button class="nav-btn active" data-tab="library">📚 مكتبتي</button>
+    <button class="nav-btn" data-tab="feeds">📡 خلاصات RSS</button>
+    <button class="nav-btn" data-tab="notes">✍️ ملاحظات متقدمة</button>
+    <button class="nav-btn" data-tab="stats">📊 إحصائيات القراءة</button>
+  </div>
+
+  <!-- قسم المكتبة (الكتب والتقدم) -->
+  <div id="librarySection" class="page-content" style="display: block;">
+    <div class="card">
+      <div class="flex-between">
+        <div class="card-title">📕 كتبي & التقدم</div>
+        <button id="addBookBtn" class="btn-primary" style="padding: 6px 18px;">+ إضافة كتاب</button>
+      </div>
+      <div id="booksListContainer">
+        <!-- سيتم عرض الكتب عبر JS -->
+        <div class="empty-state">✨ أضف كتابك الأول لمتابعة التقدم</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 تسجيل قراءة يومي</div>
+      <div class="flex-between" style="gap: 12px; flex-wrap: wrap;">
+        <select id="readingBookSelect" style="min-width: 180px;"></select>
+        <input type="number" id="pagesReadInput" placeholder="عدد الصفحات المقروءة" style="width: 140px;" min="1">
+        <button id="logReadingBtn" class="btn-primary">➕ سجِّل القراءة</button>
+      </div>
+      <div id="readingLogPreview" class="page-log-panel" style="margin-top: 16px;">
+        <small>📆 آخر جلسات القراءة:</small>
+        <div id="recentLogsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم الخلاصات RSS -->
+  <div id="feedsSection" class="page-content" style="display: none;">
+    <div class="card">
+      <div class="flex-between">
+        <div class="card-title">📡 خلاصات RSS / أخبار ومدونات</div>
+        <button id="addFeedBtn" class="btn-primary">➕ إضافة خلاصة</button>
+      </div>
+      <div class="flex-between" style="margin-bottom: 16px; gap: 10px;">
+        <input type="url" id="newFeedUrl" placeholder="https://example.com/rss.xml" style="flex:2">
+        <input type="text" id="feedTitle" placeholder="عنوان (اختياري)">
+      </div>
+      <div id="feedsList"></div>
+    </div>
+  </div>
+
+  <!-- قسم الملاحظات Quill -->
+  <div id="notesSection" class="page-content" style="display: none;">
+    <div class="card">
+      <div class="card-title">✍️ دفتر الملاحظات الغني</div>
+      <div id="quillEditor" style="height: 260px;"></div>
+      <div class="flex-between" style="margin-top: 20px;">
+        <button id="saveNotesBtn" class="btn-primary">💾 حفظ الملاحظات</button>
+        <span id="notesStatus" style="font-size: 12px; color: #6c7a89;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم الإحصائيات (رسم بياني) -->
+  <div id="statsSection" class="page-content" style="display: none;">
+    <div class="card">
+      <div class="card-title">📈 تطور القراءة (آخر 7 أيام)</div>
+      <canvas id="readingChart" width="400" height="200" style="max-height: 300px; width:100%"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ------------------- نموذج البيانات وتخزين محلي -------------------
+  let books = [];
+  let readingLogs = [];   // { date, pages, bookId, bookTitle }
+  let feeds = [];
+  let quill = null;
+  let chartInstance = null;
+
+  // تحميل البيانات من localStorage
+  function loadData() {
+    const storedBooks = localStorage.getItem('reading_planner_books');
+    const storedLogs = localStorage.getItem('reading_planner_logs');
+    const storedFeeds = localStorage.getItem('reading_planner_feeds');
+    const storedNotes = localStorage.getItem('reading_planner_notes');
+    
+    if(storedBooks) books = JSON.parse(storedBooks);
+    else {
+      books = [
+        { id: '1', title: 'عادات الذرة الذرية', author: 'جيمس كلير', totalPages: 320, currentPage: 84 },
+        { id: '2', title: 'الخلاصة في الفلسفة', author: 'ول ديورانت', totalPages: 280, currentPage: 45 }
+      ];
+    }
+    if(storedLogs) readingLogs = JSON.parse(storedLogs);
+    else readingLogs = [];
+    if(storedFeeds) feeds = JSON.parse(storedFeeds);
+    else feeds = [{ id: 'feed1', url: 'https://feeds.feedburner.com/aljazeera', title: 'الجزيرة نت' }];
+    
+    if(storedNotes && quill) quill.root.innerHTML = storedNotes;
+    else if(quill) quill.root.innerHTML = '<p>دوّن أفكارك، اقتباساتك أو ملخصات قراءاتك هنا...</p>';
+    
+    renderBooks();
+    renderFeeds();
+    updateReadingSelect();
+    renderRecentLogs();
+    updateGlobalStats();
+    updateChart();
+  }
+
+  function saveBooks() { localStorage.setItem('reading_planner_books', JSON.stringify(books)); }
+  function saveLogs() { localStorage.setItem('reading_planner_logs', JSON.stringify(readingLogs)); }
+  function saveFeeds() { localStorage.setItem('reading_planner_feeds', JSON.stringify(feeds)); }
+  function saveNotes() { if(quill) localStorage.setItem('reading_planner_notes', quill.root.innerHTML); }
+
+  // عرض الكتب مع شريط تقدم
+  function renderBooks() {
+    const container = document.getElementById('booksListContainer');
+    if(!container) return;
+    if(books.length === 0) {
+      container.innerHTML = '<div class="empty-state">📭 لا توجد كتب، أضف كتاباً جديداً</div>';
+      return;
+    }
+    container.innerHTML = '';
+    books.forEach(book => {
+      const percent = Math.floor((book.currentPage / book.totalPages) * 100);
+      const row = document.createElement('div');
+      row.className = 'book-row';
+      row.innerHTML = `
+        <div class="book-info">
+          <div class="book-title">${escapeHtml(book.title)}</div>
+          <div class="book-author">${escapeHtml(book.author)}</div>
+          <div class="progress-wrap" style="margin-top:6px; width:100%; max-width:200px;"><div class="progress-fill" style="width: ${percent}%;"></div></div>
+          <div class="badge-pages" style="margin-top:6px; display:inline-block;">📖 الصفحة ${book.currentPage} / ${book.totalPages}</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items:center;">
+          <input type="range" min="0" max="${book.totalPages}" value="${book.currentPage}" class="progress-slider" data-id="${book.id}" style="width:150px;">
+          <button class="btn-sm delete-book" data-id="${book.id}">🗑️ حذف</button>
+        </div>
+      `;
+      container.appendChild(row);
+      const slider = row.querySelector('.progress-slider');
+      slider.addEventListener('input', (e) => {
+        const newPage = parseInt(e.target.value);
+        const bookId = slider.dataset.id;
+        const bk = books.find(b => b.id === bookId);
+        if(bk) {
+          bk.currentPage = Math.min(bk.totalPages, Math.max(0, newPage));
+          saveBooks();
+          renderBooks();
+          updateGlobalStats();
+          updateReadingSelect();
+          renderRecentLogs();
+          updateChart();
+        }
+      });
+      row.querySelector('.delete-book')?.addEventListener('click', () => {
+        books = books.filter(b => b.id !== book.id);
+        saveBooks();
+        renderBooks();
+        updateGlobalStats();
+        updateReadingSelect();
+        renderRecentLogs();
+        updateChart();
+      });
+    });
+  }
+
+  function updateReadingSelect() {
+    const select = document.getElementById('readingBookSelect');
+    if(!select) return;
+    select.innerHTML = books.map(b => `<option value="${b.id}">${escapeHtml(b.title)} (الصفحة ${b.currentPage}/${b.totalPages})</option>`).join('');
+    if(books.length === 0) select.innerHTML = '<option>لا توجد كتب</option>';
+  }
+
+  // تسجيل جلسة قراءة
+  function logReading(bookId, pagesRead) {
+    if(!bookId || pagesRead <= 0) { alert("اختر كتاباً وأدخل عدد صفحات صحيح"); return false; }
+    const book = books.find(b => b.id === bookId);
+    if(!book) return false;
+    let newPage = book.currentPage + pagesRead;
+    if(newPage > book.totalPages) newPage = book.totalPages;
+    const actualRead = newPage - book.currentPage;
+    if(actualRead <= 0) { alert("لقد تجاوزت عدد صفحات الكتاب أو لم تقرأ صفحات جديدة"); return false; }
+    book.currentPage = newPage;
+    const today = new Date().toISOString().slice(0,10);
+    readingLogs.push({ date: today, pages: actualRead, bookId: book.id, bookTitle: book.title });
+    saveBooks();
+    saveLogs();
+    renderBooks();
+    updateGlobalStats();
+    renderRecentLogs();
+    updateChart();
+    return true;
+  }
+
+  function renderRecentLogs() {
+    const container = document.getElementById('recentLogsList');
+    if(!container) return;
+    const lastFive = [...readingLogs].reverse().slice(0,5);
+    if(lastFive.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد جلسات قراءة بعد، سجل قراءتك اليومية!</div>'; return; }
+    container.innerHTML = lastFive.map(log => `<div class="page-log-item">📅 ${log.date} — "${escapeHtml(log.bookTitle)}" : +${log.pages} صفحة</div>`).join('');
+  }
+
+  function updateGlobalStats() {
+    const totalBooks = books.length;
+    const totalPagesRead = readingLogs.reduce((sum, l) => sum + l.pages, 0);
+    const badge = document.getElementById('globalStats');
+    if(badge) badge.innerHTML = `📚 ${totalBooks} كتاب | 📄 ${totalPagesRead} صفحة مقروءة`;
+  }
+
+  // إدارة الخلاصات RSS (باستخدام allorigins لتفادي CORS)
+  async function fetchFeedItems(feed) {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;
+    try {
+      const resp = await fetch(proxyUrl);
+      const data = await resp.json();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+      const items = xmlDoc.querySelectorAll("item");
+      let feedItems = [];
+      items.forEach(item => {
+        const title = item.querySelector("title")?.textContent || "بدون عنوان";
+        const link = item.querySelector("link")?.textContent || "#";
+        const description = item.querySelector("description")?.textContent?.substring(0, 120) || "";
+        feedItems.push({ title, link, description });
+      });
+      return feedItems.slice(0, 6);
+    } catch(e) { return []; }
+  }
+
+  async function renderFeeds() {
+    const container = document.getElementById('feedsList');
+    if(!container) return;
+    if(feeds.length === 0) {
+      container.innerHTML = '<div class="empty-state">📡 أضف خلاصة RSS لمتابعة المحتوى</div>';
+      return;
+    }
+    container.innerHTML = '';
+    for(let feed of feeds) {
+      const feedCard = document.createElement('div');
+      feedCard.className = 'summary-post';
+      feedCard.innerHTML = `<div class="flex-between"><strong>📌 ${escapeHtml(feed.title || 'خلاصة')}</strong><button class="btn-sm delete-feed" data-id="${feed.id}">إزالة</button></div><div class="link-list" id="feed-${feed.id}">جاري تحميل المقالات...</div>`;
+      container.appendChild(feedCard);
+      feedCard.querySelector('.delete-feed')?.addEventListener('click', () => {
+        feeds = feeds.filter(f => f.id !== feed.id);
+        saveFeeds();
+        renderFeeds();
+      });
+      const itemsDiv = feedCard.querySelector(`#feed-${feed.id}`);
+      const articles = await fetchFeedItems(feed);
+      if(articles.length === 0) itemsDiv.innerHTML = '<div class="empty-state">⚠️ تعذر تحميل المحتوى أو لا توجد مقالات</div>';
+      else {
+        itemsDiv.innerHTML = articles.map(art => `<div class="link-item"><span>📰</span><a href="${art.link}" target="_blank">${escapeHtml(art.title)}</a><small style="color:#8ba0ae;"> — ${escapeHtml(art.description.substring(0,60))}</small></div>`).join('');
+      }
+    }
+  }
+
+  function addFeed(url, title) {
+    if(!url) return;
+    const newId = Date.now().toString();
+    feeds.push({ id: newId, url: url, title: title || url });
+    saveFeeds();
+    renderFeeds();
+  }
+
+  // رسم بياني لآخر 7 أيام
+  function updateChart() {
+    const ctx = document.getElementById('readingChart')?.getContext('2d');
+    if(!ctx) return;
+    const last7 = [];
+    for(let i=6; i>=0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0,10);
+      last7.push(dateStr);
+    }
+    const pagesPerDay = last7.map(date => readingLogs.filter(log => log.date === date).reduce((sum, l) => sum + l.pages, 0));
+    if(chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: last7.map(d => d.slice(5)), datasets: [{ label: 'الصفحات المقروءة', data: pagesPerDay, backgroundColor: '#2c6e4f', borderRadius: 10, barPercentage: 0.6 }] },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#2c3e50' } } } }
+    });
+  }
+
+  // إضافة كتاب جديد
+  function addBook(title, author, totalPages) {
+    if(!title || !totalPages || totalPages <=0) return false;
+    const newId = Date.now().toString();
+    books.push({ id: newId, title, author: author || 'مؤلف غير معروف', totalPages: parseInt(totalPages), currentPage: 0 });
+    saveBooks();
+    renderBooks();
+    updateReadingSelect();
+    updateGlobalStats();
+    renderRecentLogs();
+    updateChart();
+    return true;
+  }
+
+  // واجهة التنقل بين الأقسام
+  function initTabs() {
+    const btns = document.querySelectorAll('.nav-btn');
+    const sections = { library: 'librarySection', feeds: 'feedsSection', notes: 'notesSection', stats: 'statsSection' };
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        Object.keys(sections).forEach(s => document.getElementById(sections[s]).style.display = 'none');
+        document.getElementById(sections[tabId]).style.display = 'block';
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if(tabId === 'stats') updateChart();
+        if(tabId === 'notes' && quill) quill.root.focus();
+      });
+    });
+  }
+
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
+
+  // تهيئة Quill وحفظ الملاحظات
+  function initQuill() {
+    quill = new Quill('#quillEditor', { theme: 'snow', placeholder: 'دوّن اقتباسات، ملخصات، أو أي فكرة متعلقة بالقراءة...', modules: { toolbar: [['bold','italic','underline'],['link','blockquote'],['clean']] } });
+    const savedNotes = localStorage.getItem('reading_planner_notes');
+    if(savedNotes) quill.root.innerHTML = savedNotes;
+    else quill.root.innerHTML = '<p>✨ مرحباً! دوّن ملاحظاتك حول الكتب والمقالات هنا.</p>';
+    document.getElementById('saveNotesBtn')?.addEventListener('click', () => {
+      localStorage.setItem('reading_planner_notes', quill.root.innerHTML);
+      const statusSpan = document.getElementById('notesStatus');
+      statusSpan.innerText = '✅ تم الحفظ';
+      setTimeout(() => statusSpan.innerText = '', 2000);
+    });
+  }
+
+  // أحداث الإضافة
+  document.addEventListener('DOMContentLoaded', () => {
+    initQuill();
+    loadData();
+    initTabs();
+    
+    document.getElementById('addBookBtn')?.addEventListener('click', () => {
+      const title = prompt('عنوان الكتاب:');
+      if(!title) return;
+      const author = prompt('اسم المؤلف:');
+      const total = prompt('إجمالي عدد الصفحات:');
+      if(total && !isNaN(parseInt(total))) addBook(title, author, parseInt(total));
+      else alert('يجب إدخال رقم صحيح لعدد الصفحات');
+    });
+    
+    document.getElementById('logReadingBtn')?.addEventListener('click', () => {
+      const select = document.getElementById('readingBookSelect');
+      const bookId = select.value;
+      const pages = parseInt(document.getElementById('pagesReadInput').value);
+      if(!bookId || isNaN(pages) || pages<=0) { alert('حدد كتاباً وأدخل عدد صفحات صحيح'); return; }
+      if(logReading(bookId, pages)) document.getElementById('pagesReadInput').value = '';
+    });
+    
+    document.getElementById('addFeedBtn')?.addEventListener('click', () => {
+      const url = document.getElementById('newFeedUrl').value.trim();
+      const title = document.getElementById('feedTitle').value.trim();
+      if(!url) { alert('أدخل رابط RSS صالح'); return; }
+      addFeed(url, title);
+      document.getElementById('newFeedUrl').value = '';
+      document.getElementById('feedTitle').value = '';
+    });
+    
+    // تحديث الرسم البياني عند التبويب الإحصاءات
+    window.addEventListener('resize', () => { if(document.getElementById('statsSection').style.display !== 'none') updateChart(); });
+  });
+</script>
+</body>
+</html>
